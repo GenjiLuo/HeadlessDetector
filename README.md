@@ -112,3 +112,15 @@ Object.defineProperties(navigator,{webdriver:{get:()=>false}})
 通过原型删除该属性
 delete navigator.__proto__.webdriver;
 ```
+>>>补充说明：大麦网或淘宝网的滑块验证码首先就会检测环境，
+>>>通常会利用sufei_data文件检测当前浏览器信息，其中检测webdriver代码如下
+```
+function r() {
+            return "$cdc_asdjflasutopfhvcZLmcfl_"in u || f.webdriver
+        }
+        
+// 完整的检测代码，这个文件会经常升级        
+// https://g.alicdn.com/secdev/sufei_data/3.6.8/index.js
+```
+>>>因此在尝试拖动滑块的时候，先要修改该属性。不然如何修改路径都会提示错误，并要求重试。
+>>>document.$cdc_asdjflasutopfhvcZLmcfl_通常在使用selenium时会出现
