@@ -185,11 +185,18 @@ Object.defineProperty(navigator, 'languages', {
   });
 ```
 # 参考
-[Detecting Chrome headless, the game goes on!](https://antoinevastel.com/bot%20detection/2019/07/19/detecting-chrome-headless-v3.html)
-[Detecting Chrome headless, new techniques](https://antoinevastel.com/bot%20detection/2018/01/17/detect-chrome-headless-v2.html)
-[Detecting Chrome Headless](https://antoinevastel.com/bot%20detection/2017/08/05/detect-chrome-headless.html)
-[FP-Scanner, a bot detection library based on browser fingerprinting](https://antoinevastel.com/bot%20detection/2018/11/13/fp-scanner-library-demo.html)
-[IT IS *NOT* POSSIBLE TO DETECT AND BLOCK CHROME HEADLESS](https://intoli.com/blog/not-possible-to-block-chrome-headless/)
-[MAKING CHROME HEADLESS UNDETECTABLE](https://intoli.com/blog/making-chrome-headless-undetectable/)
-[What is the list of possible values for navigator.platform as of today?](https://stackoverflow.com/questions/19877924/what-is-the-list-of-possible-values-for-navigator-platform-as-of-today)
-[detect-headless](https://github.com/infosimples/detect-headless)
+-[Detecting Chrome headless, the game goes on!](https://antoinevastel.com/bot%20detection/2019/07/19/detecting-chrome-headless-v3.html)
+
+-[Detecting Chrome headless, new techniques](https://antoinevastel.com/bot%20detection/2018/01/17/detect-chrome-headless-v2.html)
+
+-[Detecting Chrome Headless](https://antoinevastel.com/bot%20detection/2017/08/05/detect-chrome-headless.html)
+
+-[FP-Scanner, a bot detection library based on browser fingerprinting](https://antoinevastel.com/bot%20detection/2018/11/13/fp-scanner-library-demo.html)
+
+-[IT IS *NOT* POSSIBLE TO DETECT AND BLOCK CHROME HEADLESS](https://intoli.com/blog/not-possible-to-block-chrome-headless/)
+
+-[MAKING CHROME HEADLESS UNDETECTABLE](https://intoli.com/blog/making-chrome-headless-undetectable/)
+
+-[What is the list of possible values for navigator.platform as of today?](https://stackoverflow.com/questions/19877924/what-is-the-list-of-possible-values-for-navigator-platform-as-of-today)
+
+-[detect-headless](https://github.com/infosimples/detect-headless)
