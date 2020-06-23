@@ -103,7 +103,7 @@ if(!Modernizr["hairline"]) {
 ```
 
 # 附录
-##针对Chrome 禁止浏览器返回webdriver对象,让百度、淘宝、天猫之类的网站无法通过该属性对象 判断为headless爬虫
+## 针对Chrome 禁止浏览器返回webdriver对象,让百度、淘宝、天猫之类的网站无法通过该属性对象 判断为headless爬虫
 ```
 Object.defineProperties(navigator,{webdriver:{get:()=>false}})
 ```
@@ -112,8 +112,8 @@ Object.defineProperties(navigator,{webdriver:{get:()=>false}})
 通过原型删除该属性
 delete navigator.__proto__.webdriver;
 ```
->>>补充说明：大麦网或淘宝网的滑块验证码首先就会检测环境，
->>>通常会利用sufei_data文件检测当前浏览器信息，其中检测webdriver代码如下
+>补充说明：大麦网或淘宝网的滑块验证码首先就会检测环境，
+>通常会利用sufei_data文件检测当前浏览器信息，其中检测webdriver代码如下
 ```
 function r() {
             return "$cdc_asdjflasutopfhvcZLmcfl_"in u || f.webdriver
@@ -122,5 +122,40 @@ function r() {
 // 完整的检测代码，这个文件会经常升级        
 // https://g.alicdn.com/secdev/sufei_data/3.6.8/index.js
 ```
->>>因此在尝试拖动滑块的时候，先要修改该属性。不然如何修改路径都会提示错误，并要求重试。
->>>document.$cdc_asdjflasutopfhvcZLmcfl_通常在使用selenium时会出现
+>因此在尝试拖动滑块的时候，先要修改该属性。不然如何修改路径都会提示错误，并要求重试。
+>document.$cdc_asdjflasutopfhvcZLmcfl_通常在使用selenium时会出现
+
+## chrome属性检测
+>在无头模式下window.chrome属性是undefined，而在正常有界面模式下，定义如下:
+```
+csi: ƒ ()
+embeddedSearch: {searchBox: {…}, newTabPage: {…}}
+loadTimes: ƒ ()
+app: (...)
+runtime: (...)
+webstore: (...)
+get app: ƒ nativeGetter()
+set app: ƒ nativeSetter()
+get runtime: ƒ nativeGetter()
+set runtime: ƒ nativeSetter()
+get webstore: ƒ nativeGetter()
+set webstore: ƒ nativeSetter()
+```
+>因此绕过检测修改属性即可
+```
+window.navigator.chrome = {
+    runtime: {},
+    // etc.
+};
+```
+## Permissions检测
+```
+(async () => {
+  const permissionStatus = await navigator.permissions.query({ name: 'notifications' });
+  if(Notification.permission === 'denied' && permissionStatus.state === 'prompt') {
+    // headless
+  }
+})();
+```
+>无头模式下Notification.permission与navigator.permissions.query会返回相反的值。因此绕过的方式如下。
+
