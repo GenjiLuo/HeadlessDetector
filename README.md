@@ -158,4 +158,38 @@ window.navigator.chrome = {
 })();
 ```
 >无头模式下Notification.permission与navigator.permissions.query会返回相反的值。因此绕过的方式如下。
-
+```
+// Pass the Permissions Test.
+await page.evaluateOnNewDocument(() => {
+  const originalQuery = window.navigator.permissions.query;
+  return window.navigator.permissions.query = (parameters) => (
+    parameters.name === 'notifications' ?
+      Promise.resolve({ state: Notification.permission }) :
+      originalQuery(parameters)
+  );
+});
+```
+## Plugins长度检测
+>无头模式下navigator.plugins.length返回0,绕过方式如下:
+```
+Object.defineProperty(navigator, 'plugins', {
+    get: () => [1, 2, 3, 4, 5],
+  });
+```
+>注意：反爬除了检查长度，还会检查内容。如果你设置了长度，别忘了再设置内容。防止被反爬。
+## The Languages检测
+>navigator.languages检测方法,绕过方法:
+```
+Object.defineProperty(navigator, 'languages', {
+    get: () => ['en-US', 'en'],
+  });
+```
+# 参考
+[Detecting Chrome headless, the game goes on!](https://antoinevastel.com/bot%20detection/2019/07/19/detecting-chrome-headless-v3.html)
+[Detecting Chrome headless, new techniques](https://antoinevastel.com/bot%20detection/2018/01/17/detect-chrome-headless-v2.html)
+[Detecting Chrome Headless](https://antoinevastel.com/bot%20detection/2017/08/05/detect-chrome-headless.html)
+[FP-Scanner, a bot detection library based on browser fingerprinting](https://antoinevastel.com/bot%20detection/2018/11/13/fp-scanner-library-demo.html)
+[IT IS *NOT* POSSIBLE TO DETECT AND BLOCK CHROME HEADLESS](https://intoli.com/blog/not-possible-to-block-chrome-headless/)
+[MAKING CHROME HEADLESS UNDETECTABLE](https://intoli.com/blog/making-chrome-headless-undetectable/)
+[What is the list of possible values for navigator.platform as of today?](https://stackoverflow.com/questions/19877924/what-is-the-list-of-possible-values-for-navigator-platform-as-of-today)
+[detect-headless](https://github.com/infosimples/detect-headless)
