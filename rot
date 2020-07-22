@@ -1,0 +1,149 @@
+<?php
+namespace Facebook\WebDriver;
+
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+require_once ('vendor/autoload.php');
+
+//###### 工具函数 #################
+
+function isExist($path){
+	if (!is_dir($path)){
+		return false;
+	}else{
+		return true;
+	}
+}
+
+// 切换至最后一个window
+// 因为有些网站的链接点击过去带有target="_blank"属性，就新开了一个TAB，而selenium还是定位到老的TAB上，如果要实时定>位到新的TAB，则需要调用此方法，切换到最后一个window
+function switchToEndWindow($driver)
+{
+    $arr = $driver->getWindowHandles();
+    foreach ($arr as $k => $v) {
+        if ($k == (count($arr) - 1)) {
+            $driver->switchTo()->window($v);
+        }
+    }
+}
+
+//###################################
+
+$url = $_GET['url'];
+// 需等待加载的时间，一般加载时间在0-15秒，如果超过15秒，报错。
+$waitSeconds =$_GET['timeout']??15;
+
+if(!$url)
+    exit('缺少必要参数:url');
+
+// putenv('WEBDRIVER_CHROME_DRIVER=/home/wwwroot/php-webdriver-test/driver_bin/chromedriver');
+// $driver = ChromeDriver::start();
+
+$options = new ChromeOptions();
+$options->addArguments([
+    '--headless',
+    '--no-sandbox',
+    '--incognito',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+    '--disable-extensions',
+    '--disable-plugins-discovery',
+    // 指定视窗大小,注意与 User-Agent配对
+    '--window-size=1024,768',
+    // 指定User-agent，注意与 window-size
+    '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
+    //禁止webdriver对象被检测
+    //    '--disable-blink-features',
+    //    '--disable-blink-features=AutomationControlled'
+]);
+// Available capabilities:
+// http://chromedriver.chromium.org/capabilities
+$options->setExperimentalOption('excludeSwitches', [
+    'enable-automation'
+]);
+$options->setExperimentalOption('useAutomationExtension', false);
+
+// 指定Chromedirver可执行文件
+//$options->setBinary('/home/wwwroot/php-webdriver-test/driver_bin/chromedriver');
+
+$caps = $options->toCapabilities();
+
+//var_dump($driver->getCapabilities());
+
+$serverUrl = 'http://localhost:4444/wd/hub';
+$driver = RemoteWebDriver::create($serverUrl, $caps);
+if($_GET['bot']){
+//定义反爬特征消息脚本(js)
+$beforeOnNewDocumentScript = <<<string
+window.chrome={
+app:{},
+runtime: {},
+};
+delete navigator.__proto__.webdriver;
+Object.defineProperty(navigator, "languages", {
+  get: function() {
+    return ["zh-CN","zh","zh-TW","en-US","en"];
+  }
+});
+/*
+Object.defineProperty(navigator, 'plugins', {
+  get: () => [1, 2, 3, 4, 5],
+});
+*/
+const originalQuery = window.navigator.permissions.query;
+window.navigator.permissions.query = (parameters) => (
+  parameters.name === 'notifications' ?
+    Promise.resolve({ state: Notification.permission }) :
+    originalQuery(parameters)
+);
+//模拟PluginArray 和 MimeTypeArray
+let mimeTypes = [{
+    "description": "",
+    "enabledPlugin": {},
+    "suffixes": "pdf",
+    "type": "application/pdf"
+}, {
+    "description": "Portable Document Format",
+    "enabledPlugin": {},
+    "suffixes": "pdf",
+    "type": "application/x-google-chrome-pdf"
+}, {
+    "description": "Native Client Executable",
+    "enabledPlugin": {},
+    "suffixes": "",
+    "type": "application/x-nacl"
+}, {
+    "description": "Portable Native Client Executable",
+    "enabledPlugin": {},
+    "suffixes": "",
+    "type": "application/x-pnacl"
+}];
+mimeTypes.map(o => Object.setPrototypeOf(o,MimeType.prototype));
+Object.setPrototypeOf(mimeTypes,MimeTypeArray.prototype);
+
+string;
+
+//!!!执行反爬检测特征消除脚本本
+$driver->executeCustomCommand('/session/:sessionId/chromium/send_command', 'POST', [
+  'cmd'    => 'Page.addScriptToEvaluateOnNewDocument', //将脚本添加到新建立 Document对象之前
+  'params' => (object)[
+    "source" => $beforeOnNewDocumentScript,
+  ],
+]);
+
+}
+
+$driver->get($url);
+$driver->takeScreenshot("opened.png");
+
+// 关闭浏览器
+$driver->close();
+$driver->quit();
+
+@ header("Content-Type:image/png");
+$imagespath = realpath("./opened.png"); 
+echo file_get_contents($imagespath);
+
+exit(1);
+
